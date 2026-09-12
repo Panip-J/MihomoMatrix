@@ -102,7 +102,7 @@ rule-providers:
 proxy-groups: #!replace
   - name: DEFAULT
     type: select
-    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f680.png?v8
     proxies:
       - DIRECT
       - ALL
@@ -137,185 +137,185 @@ proxy-groups: #!replace
       - OTH
   - name: ALL
     type: select
-    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f30f.png?v8
     include-all: true
   - name: HKG
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/hk.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1ed-1f1f0.png?v8
     include-all: true
     filter: (?i)香港|HK(?![a-zA-Z])|HongKong|Hong Kong
   - name: MAC
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/mo.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1f4.png?v8
     include-all: true
     filter: (?i)澳门|MO(?![a-zA-Z])|Macau|Macao
   - name: TWN
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/tw.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1fc.png?v8
     include-all: true
     filter: (?i)台湾|TW(?![a-zA-Z])|Taiwan
   - name: JPN
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/jp.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1ef-1f1f5.png?v8
     include-all: true
     filter: (?i)日本|JP(?![a-zA-Z])|Japan
   - name: KOR
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/kr.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f0-1f1f7.png?v8
     include-all: true
     filter: (?i)韩国|KR(?![a-zA-Z])|Korea
   - name: SGP
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/sg.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ec.png?v8
     include-all: true
     filter: (?i)新加坡|SG(?![a-zA-Z])|Singapore
   - name: MYS
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/my.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1fe.png?v8
     include-all: true
     filter: (?i)马来|MY(?![a-zA-Z])|Malaysia
   - name: THA
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/th.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1ed.png?v8
     include-all: true
     filter: (?i)泰国|TH(?![a-zA-Z])|Thailand
   - name: VNM
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/vn.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1fb-1f1f3.png?v8
     include-all: true
     filter: (?i)越南|VN(?![a-zA-Z])|Vietnam
   - name: IDN
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/id.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1e9.png?v8
     include-all: true
     filter: (?i)印尼|印度尼西亚|ID(?![a-zA-Z])|Indonesia
   - name: IND
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/in.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f3.png?v8
     include-all: true
     filter: (?i)(?<!印)印度(?!尼西亚)|IN(?![a-zA-Z])|India
   - name: ARE
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ae.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1e6-1f1ea.png?v8
     include-all: true
     filter: (?i)阿拉伯联合酋长国|阿联酋|迪拜|阿布扎比|AE(?![a-zA-Z])|UAE|United Arab Emirates
   - name: USA
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/us.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1fa-1f1f8.png?v8
     include-all: true
     filter: (?i)美国|US(?![a-zA-Z])|UnitedStates|United States
   - name: CAN
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ca.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1e6.png?v8
     include-all: true
     filter: (?i)加拿大|CA(?![a-zA-Z])|Canada
   - name: MEX
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/mx.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1fd.png?v8
     include-all: true
     filter: (?i)墨西哥|MX(?![a-zA-Z])|Mexico
   - name: BRA
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/br.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f7.png?v8
     include-all: true
     filter: (?i)巴西|BR(?![a-zA-Z])|Brazil
   - name: UKR
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ua.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1fa-1f1e6.png?v8
     include-all: true
     filter: (?i)乌克兰|UA(?![a-zA-Z])|Ukraine
   - name: ROU
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ro.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f7-1f1f4.png?v8
     include-all: true
     filter: (?i)罗马尼亚|RO(?![a-zA-Z])|Romania
   - name: LTU
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/lt.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f1-1f1f9.png?v8
     include-all: true
     filter: (?i)立陶宛|LT(?![a-zA-Z])|Lithuania
   - name: ITA
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/it.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f9.png?v8
     include-all: true
     filter: (?i)意大利|IT(?![a-zA-Z])|Italy
   - name: TUR
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/tr.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1f7.png?v8
     include-all: true
     filter: (?i)土耳其|TR(?![a-zA-Z])|Turkey
   - name: GBR
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/gb.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1e7.png?v8
     include-all: true
     filter: (?i)英国|UK(?![a-zA-Z])|GreatBritain|UnitedKingdom
   - name: DEU
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/de.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1e9-1f1ea.png?v8
     include-all: true
     filter: (?i)德国|DE(?![a-zA-Z])|Germany
   - name: FRA
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/fr.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1eb-1f1f7.png?v8
     include-all: true
     filter: (?i)法国|FR(?![a-zA-Z])|France
   - name: NLD
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/nl.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f3-1f1f1.png?v8
     include-all: true
     filter: (?i)荷兰|NL(?![a-zA-Z])|Netherlands
   - name: SWE
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/se.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ea.png?v8
     include-all: true
     filter: (?i)瑞典|SE(?![a-zA-Z])|Sweden
   - name: AUS
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/au.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1e6-1f1fa.png?v8
     include-all: true
     filter: (?i)澳大利亚|澳洲|AU(?![a-zA-Z])|Australia
   - name: NGA
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ng.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f1f3-1f1ec.png?v8
     include-all: true
     filter: (?i)尼日利亚|NG(?![a-zA-Z])|Nigeria
   - name: OTH
     type: select
-    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/xx.svg
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f3f4-2620.png?v8
     include-all: true
     filter: (?i)^(?!.*(香港|HK(?![a-zA-Z])|HongKong|Hong Kong|澳门|MO(?![a-zA-Z])|Macau|Macao|台湾|TW(?![a-zA-Z])|Taiwan|日本|JP(?![a-zA-Z])|Japan|韩国|KR(?![a-zA-Z])|Korea|新加坡|SG(?![a-zA-Z])|Singapore|马来|MY(?![a-zA-Z])|Malaysia|泰国|TH(?![a-zA-Z])|Thailand|越南|VN(?![a-zA-Z])|Vietnam|印尼|印度尼西亚|ID(?![a-zA-Z])|Indonesia|印度|IN(?![a-zA-Z])|India|阿拉伯联合酋长国|阿联酋|迪拜|阿布扎比|AE(?![a-zA-Z])|UAE|United
       Arab Emirates|美国|US(?![a-zA-Z])|UnitedStates|United States|加拿大|CA(?![a-zA-Z])|Canada|墨西哥|MX(?![a-zA-Z])|Mexico|巴西|BR(?![a-zA-Z])|Brazil|乌克兰|UA(?![a-zA-Z])|Ukraine|罗马尼亚|RO(?![a-zA-Z])|Romania|立陶宛|LT(?![a-zA-Z])|Lithuania|意大利|IT(?![a-zA-Z])|Italy|土耳其|TR(?![a-zA-Z])|Turkey|英国|UK(?![a-zA-Z])|GreatBritain|UnitedKingdom|德国|DE(?![a-zA-Z])|Germany|法国|FR(?![a-zA-Z])|France|荷兰|NL(?![a-zA-Z])|Netherlands|瑞典|SE(?![a-zA-Z])|Sweden|澳大利亚|澳洲|AU(?![a-zA-Z])|Australia|尼日利亚|NG(?![a-zA-Z])|Nigeria)).*$
   - name: STORE
     type: select
-    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Steam.png
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f3ae.png?v8
     proxies:
       - HKG
       - DEFAULT
       - DIRECT
   - name: WIKI
     type: select
-    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Puzzle.png
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f4da.png?v8
     proxies:
       - HKG
       - DEFAULT
       - DIRECT
   - name: PIKPAK
     type: select
-    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/iCloud.png
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f5c3.png?v8
     proxies:
       - HKG
       - DEFAULT
       - DIRECT
   - name: SRGB
     type: select
-    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Rainbow.png
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png?v8
     proxies:
       - USA
       - DEFAULT
       - DIRECT
   - name: SLIP
     type: select
-    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png
+    icon: https://github.githubassets.com/images/icons/emoji/unicode/1f41f.png?v8
     proxies:
       - DEFAULT
       - DIRECT
