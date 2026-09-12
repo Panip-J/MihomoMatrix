@@ -1,0 +1,340 @@
+unified-delay: true
+tcp-concurrent: true
+prefer-ipv4: true
+profile:
+  store-selected: true
+sniffer:
+  enable: true
+  parse-pure-ip: true
+  sniff:
+    TLS:
+      ports:
+        - 443
+        - 8443
+    HTTP:
+      ports:
+        - 80
+        - 8080-8880
+      override-destination: true
+  skip-domain:
+    - Mijia Cloud
+    - dlg.io.mi.com
+    - +.apple.com
+dns:
+  enable: true
+  ipv6: true
+  use-hosts: true
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-range6: fdfe:dcba:9876::1/64
+  fake-ip-filter:
+    - ddns.oray.com
+    - v4.66666.host
+    - myip.ipip.net
+    - v4.666666.host
+    - 4.ipw.cn
+    - ip.3322.net
+    - v6.66666.host
+    - myip6.ipip.net
+    - 6.ipw.cn
+    - v6.666666.host
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  proxy-server-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  fallback:
+    - 1.1.1.1
+    - 8.8.8.8
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+rule-providers:
+  Lan:
+    type: http
+    behavior: classical
+    interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Lan/Lan_No_Resolve.yaml
+    path: ./ruleset/Lan_No_Resolve.yaml
+  ChinaMax:
+    type: http
+    behavior: classical
+    interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/ChinaMax/ChinaMax_Classical_No_Resolve.yaml
+    path: ./ruleset/ChinaMax_Classical_No_Resolve.yaml
+  SteamCN:
+    type: http
+    behavior: classical
+    interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/SteamCN/SteamCN_No_Resolve.yaml
+    path: ./ruleset/SteamCN_No_Resolve.yaml
+  Steam:
+    type: http
+    behavior: classical
+    interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Steam/Steam_No_Resolve.yaml
+    path: ./ruleset/Steam_No_Resolve.yaml
+  Epic:
+    type: http
+    behavior: classical
+    interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Epic/Epic_No_Resolve.yaml
+    path: ./ruleset/Epic_No_Resolve.yaml
+  Wikipedia:
+    type: http
+    behavior: classical
+    interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Wikipedia/Wikipedia_No_Resolve.yaml
+    path: ./ruleset/Wikipedia_No_Resolve.yaml
+  Global:
+    type: http
+    behavior: classical
+    interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Global/Global_Classical_No_Resolve.yaml
+    path: ./ruleset/Global_Classical_No_Resolve.yaml
+proxy-groups: #!replace
+  - name: DEFAULT
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
+    proxies:
+      - DIRECT
+      - ALL
+      - HKG
+      - MAC
+      - TWN
+      - JPN
+      - KOR
+      - SGP
+      - MYS
+      - THA
+      - VNM
+      - IDN
+      - IND
+      - ARE
+      - USA
+      - CAN
+      - MEX
+      - BRA
+      - UKR
+      - ROU
+      - LTU
+      - ITA
+      - TUR
+      - GBR
+      - DEU
+      - FRA
+      - NLD
+      - SWE
+      - AUS
+      - NGA
+      - OTH
+  - name: ALL
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png
+    include-all: true
+  - name: HKG
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/hk.svg
+    include-all: true
+    filter: (?i)香港|HK(?![a-zA-Z])|HongKong|Hong Kong
+  - name: MAC
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/mo.svg
+    include-all: true
+    filter: (?i)澳门|MO(?![a-zA-Z])|Macau|Macao
+  - name: TWN
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/tw.svg
+    include-all: true
+    filter: (?i)台湾|TW(?![a-zA-Z])|Taiwan
+  - name: JPN
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/jp.svg
+    include-all: true
+    filter: (?i)日本|JP(?![a-zA-Z])|Japan
+  - name: KOR
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/kr.svg
+    include-all: true
+    filter: (?i)韩国|KR(?![a-zA-Z])|Korea
+  - name: SGP
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/sg.svg
+    include-all: true
+    filter: (?i)新加坡|SG(?![a-zA-Z])|Singapore
+  - name: MYS
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/my.svg
+    include-all: true
+    filter: (?i)马来|MY(?![a-zA-Z])|Malaysia
+  - name: THA
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/th.svg
+    include-all: true
+    filter: (?i)泰国|TH(?![a-zA-Z])|Thailand
+  - name: VNM
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/vn.svg
+    include-all: true
+    filter: (?i)越南|VN(?![a-zA-Z])|Vietnam
+  - name: IDN
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/id.svg
+    include-all: true
+    filter: (?i)印尼|印度尼西亚|ID(?![a-zA-Z])|Indonesia
+  - name: IND
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/in.svg
+    include-all: true
+    filter: (?i)(?<!印)印度(?!尼西亚)|IN(?![a-zA-Z])|India
+  - name: ARE
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ae.svg
+    include-all: true
+    filter: (?i)阿拉伯联合酋长国|阿联酋|迪拜|阿布扎比|AE(?![a-zA-Z])|UAE|United Arab Emirates
+  - name: USA
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/us.svg
+    include-all: true
+    filter: (?i)美国|US(?![a-zA-Z])|UnitedStates|United States
+  - name: CAN
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ca.svg
+    include-all: true
+    filter: (?i)加拿大|CA(?![a-zA-Z])|Canada
+  - name: MEX
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/mx.svg
+    include-all: true
+    filter: (?i)墨西哥|MX(?![a-zA-Z])|Mexico
+  - name: BRA
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/br.svg
+    include-all: true
+    filter: (?i)巴西|BR(?![a-zA-Z])|Brazil
+  - name: UKR
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ua.svg
+    include-all: true
+    filter: (?i)乌克兰|UA(?![a-zA-Z])|Ukraine
+  - name: ROU
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ro.svg
+    include-all: true
+    filter: (?i)罗马尼亚|RO(?![a-zA-Z])|Romania
+  - name: LTU
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/lt.svg
+    include-all: true
+    filter: (?i)立陶宛|LT(?![a-zA-Z])|Lithuania
+  - name: ITA
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/it.svg
+    include-all: true
+    filter: (?i)意大利|IT(?![a-zA-Z])|Italy
+  - name: TUR
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/tr.svg
+    include-all: true
+    filter: (?i)土耳其|TR(?![a-zA-Z])|Turkey
+  - name: GBR
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/gb.svg
+    include-all: true
+    filter: (?i)英国|UK(?![a-zA-Z])|GreatBritain|UnitedKingdom
+  - name: DEU
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/de.svg
+    include-all: true
+    filter: (?i)德国|DE(?![a-zA-Z])|Germany
+  - name: FRA
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/fr.svg
+    include-all: true
+    filter: (?i)法国|FR(?![a-zA-Z])|France
+  - name: NLD
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/nl.svg
+    include-all: true
+    filter: (?i)荷兰|NL(?![a-zA-Z])|Netherlands
+  - name: SWE
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/se.svg
+    include-all: true
+    filter: (?i)瑞典|SE(?![a-zA-Z])|Sweden
+  - name: AUS
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/au.svg
+    include-all: true
+    filter: (?i)澳大利亚|澳洲|AU(?![a-zA-Z])|Australia
+  - name: NGA
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/ng.svg
+    include-all: true
+    filter: (?i)尼日利亚|NG(?![a-zA-Z])|Nigeria
+  - name: OTH
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/hatscripts/circle-flags@gh-pages/flags/xx.svg
+    include-all: true
+    filter: (?i)^(?!.*(香港|HK(?![a-zA-Z])|HongKong|Hong Kong|澳门|MO(?![a-zA-Z])|Macau|Macao|台湾|TW(?![a-zA-Z])|Taiwan|日本|JP(?![a-zA-Z])|Japan|韩国|KR(?![a-zA-Z])|Korea|新加坡|SG(?![a-zA-Z])|Singapore|马来|MY(?![a-zA-Z])|Malaysia|泰国|TH(?![a-zA-Z])|Thailand|越南|VN(?![a-zA-Z])|Vietnam|印尼|印度尼西亚|ID(?![a-zA-Z])|Indonesia|印度|IN(?![a-zA-Z])|India|阿拉伯联合酋长国|阿联酋|迪拜|阿布扎比|AE(?![a-zA-Z])|UAE|United
+      Arab Emirates|美国|US(?![a-zA-Z])|UnitedStates|United States|加拿大|CA(?![a-zA-Z])|Canada|墨西哥|MX(?![a-zA-Z])|Mexico|巴西|BR(?![a-zA-Z])|Brazil|乌克兰|UA(?![a-zA-Z])|Ukraine|罗马尼亚|RO(?![a-zA-Z])|Romania|立陶宛|LT(?![a-zA-Z])|Lithuania|意大利|IT(?![a-zA-Z])|Italy|土耳其|TR(?![a-zA-Z])|Turkey|英国|UK(?![a-zA-Z])|GreatBritain|UnitedKingdom|德国|DE(?![a-zA-Z])|Germany|法国|FR(?![a-zA-Z])|France|荷兰|NL(?![a-zA-Z])|Netherlands|瑞典|SE(?![a-zA-Z])|Sweden|澳大利亚|澳洲|AU(?![a-zA-Z])|Australia|尼日利亚|NG(?![a-zA-Z])|Nigeria)).*$
+  - name: STORE
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Steam.png
+    proxies:
+      - HKG
+      - DEFAULT
+      - DIRECT
+  - name: WIKI
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Puzzle.png
+    proxies:
+      - HKG
+      - DEFAULT
+      - DIRECT
+  - name: PIKPAK
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/iCloud.png
+    proxies:
+      - HKG
+      - DEFAULT
+      - DIRECT
+  - name: SRGB
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Rainbow.png
+    proxies:
+      - USA
+      - DEFAULT
+      - DIRECT
+  - name: SLIP
+    type: select
+    icon: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png
+    proxies:
+      - DEFAULT
+      - DIRECT
+rules: #!replace
+  - DOMAIN-SUFFIX,local,DIRECT
+  - DOMAIN-SUFFIX,lan,DIRECT
+  - RULE-SET,Lan,DIRECT
+  - DOMAIN-SUFFIX,moegirl.org.cn,WIKI
+  - RULE-SET,ChinaMax,DIRECT
+  - GEOIP,CN,DIRECT
+  - DOMAIN-SUFFIX,acgrip.com,DIRECT
+  - DOMAIN-SUFFIX,mineru.net,DIRECT
+  - DOMAIN-SUFFIX,openxlab.org.cn,DIRECT
+  - RULE-SET,SteamCN,DIRECT
+  - RULE-SET,Steam,STORE
+  - RULE-SET,Epic,STORE
+  - RULE-SET,Wikipedia,WIKI
+  - DOMAIN-KEYWORD,pikpak,PIKPAK
+  - DOMAIN-SUFFIX,signalrgb.com,SRGB
+  - RULE-SET,Global,DEFAULT
+  - DOMAIN-SUFFIX,opencode.ai,DEFAULT
+  - MATCH,SLIP
