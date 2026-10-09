@@ -1,12 +1,40 @@
 function main(config, profileName) {
   const proxies = config.proxies || [];
   const proxyNames = proxies.map(p => p.name);
+
+  proxies.forEach(p => {
+    if (['trojan', 'vless', 'vmess', 'anytls', 'tuic', 'hysteria', 'hysteria2'].includes(p.type)) {
+      if (!p['client-fingerprint']) {
+        p['client-fingerprint'] = 'chrome';
+      }
+    }
+  });
+
+  const isIP = (str) => /^(?:\d{1,3}\.){3}\d{1,3}$|^[a-fA-F0-9:]+$/.test(str);
+  const serverDomains = proxies
+    .map(p => p.server)
+    .filter(s => s && typeof s === 'string' && !isIP(s));
+
+  const baseFakeIpFilter = [
+    '*.lan', '*.localdomain', '*.example', '*.invalid', '*.localhost', '*.test', '*.local', '*.home.arpa',
+    'time.*.com', 'time.*.gov', 'time.*.apple.com', 'time.*.edu.cn', '+.pool.ntp.org', 'time1.cloud.tencent.com',
+    'stun.*.*', 'stun.*.*.*', '+.trafficmanager.net',
+    'ddns.oray.com', 'v4.66666.host', 'myip.ipip.net', 'v4.666666.host', '4.ipw.cn', 'ip.3322.net',
+    'v6.66666.host', 'myip6.ipip.net', '6.ipw.cn', 'v6.666666.host'
+  ];
+  const origFakeIpFilter = (config.dns && config.dns['fake-ip-filter']) || [];
+  const finalFakeIpFilter = Array.from(new Set([...baseFakeIpFilter, ...serverDomains, ...origFakeIpFilter]));
+
+  const origProxyServerDns = (config.dns && config.dns['proxy-server-nameserver']) || [];
+  const defaultProxyServerDns = ['223.5.5.5', '119.29.29.29'];
+  const finalProxyServerDns = Array.from(new Set([...origProxyServerDns, ...defaultProxyServerDns]));
+  const origNameserverPolicy = (config.dns && config.dns['nameserver-policy']) || {};
+
   config['unified-delay'] = true;
   config['tcp-concurrent'] = true;
   config['prefer-ipv4'] = true;
-  config['profile'] = Object.assign({}, config['profile'], {
-    'store-selected': true
-  });
+  config['profile'] = Object.assign({}, config['profile'], { 'store-selected': true });
+
   config['sniffer'] = {
     enable: true,
     'parse-pure-ip': true,
@@ -14,12 +42,9 @@ function main(config, profileName) {
       TLS: { ports: [443, 8443] },
       HTTP: { ports: [80, '8080-8880'], 'override-destination': true }
     },
-    'skip-domain': [
-      'Mijia Cloud',
-      'dlg.io.mi.com',
-      '+.apple.com'
-    ]
+    'skip-domain': ['Mijia Cloud', 'dlg.io.mi.com', '+.apple.com']
   };
+
   config['dns'] = {
     enable: true,
     ipv6: true,
@@ -28,30 +53,20 @@ function main(config, profileName) {
     'fake-ip-range6': 'fdfe:dcba:9876::1/64',
     'use-hosts': true,
     'respect-rules': true,
-    'default-nameserver': [
-      '223.5.5.5',
-      '119.29.29.29'
-    ],
-    'proxy-server-nameserver': [
-      '223.5.5.5',
-      '119.29.29.29'
-    ],
-    nameserver: [
-      '223.5.5.5',
-      '119.29.29.29'
-    ],
-    fallback: [
-      '1.1.1.1',
-      '8.8.8.8'
-    ],
+    'fake-ip-filter': finalFakeIpFilter,
+    'default-nameserver': ['223.5.5.5', '119.29.29.29'],
+    'proxy-server-nameserver': finalProxyServerDns,
+    nameserver: ['223.5.5.5', '119.29.29.29'],
+    fallback: ['1.1.1.1', '8.8.8.8'],
     'fallback-filter': {
       geoip: true,
       'geoip-code': 'CN',
-      ipcidr: [
-        '240.0.0.0/4'
-      ]
+      ipcidr: ['240.0.0.0/4']
     }
   };
+  if (Object.keys(origNameserverPolicy).length > 0) {
+    config['dns']['nameserver-policy'] = origNameserverPolicy;
+  }
   config['rule-providers'] = {
     Lan: {
       type: 'http',
@@ -226,14 +241,14 @@ function main(config, profileName) {
     }
   ];
   config['proxy-groups'] = [
-    coreGroups[0], // DEFAULT
-    coreGroups[1], // ALL
+    coreGroups[0],
+    coreGroups[1],
     ...countryGroups,
-    coreGroups[2], // STORE
-    coreGroups[3], // WIKI
-    coreGroups[4], // PIKPAK
-    coreGroups[5], // SRGB
-    coreGroups[6]  // SLIP
+    coreGroups[2],
+    coreGroups[3],
+    coreGroups[4],
+    coreGroups[5],
+    coreGroups[6]
   ];
   return config;
 }

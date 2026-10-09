@@ -29,6 +29,23 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-range6: fdfe:dcba:9876::1/64
   fake-ip-filter:
+    - '*.lan'
+    - '*.localdomain'
+    - '*.example'
+    - '*.invalid'
+    - '*.localhost'
+    - '*.test'
+    - '*.local'
+    - '*.home.arpa'
+    - 'time.*.com'
+    - 'time.*.gov'
+    - 'time.*.apple.com'
+    - 'time.*.edu.cn'
+    - '+.pool.ntp.org'
+    - time1.cloud.tencent.com
+    - 'stun.*.*'
+    - 'stun.*.*.*'
+    - '+.trafficmanager.net'
     - ddns.oray.com
     - v4.66666.host
     - myip.ipip.net
