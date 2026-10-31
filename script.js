@@ -2,23 +2,26 @@ function main(config, profileName) {
   const proxies = config.proxies || [];
   const proxyNames = proxies.map(p => p.name);
 
+  const emojiIcon = code => `https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8`;
+  const isIP = str => /^(?:\d{1,3}\.){3}\d{1,3}$|^[a-fA-F0-9:]+$/.test(str);
+  const tlsTypes = ['trojan', 'vless', 'vmess', 'anytls', 'tuic', 'hysteria', 'hysteria2'];
+
   proxies.forEach(p => {
-    if (['trojan', 'vless', 'vmess', 'anytls', 'tuic', 'hysteria', 'hysteria2'].includes(p.type)) {
-      if (!p['client-fingerprint']) {
-        p['client-fingerprint'] = 'chrome';
-      }
+    if (tlsTypes.includes(p.type) && !p['client-fingerprint']) {
+      p['client-fingerprint'] = 'chrome';
     }
   });
 
-  const isIP = (str) => /^(?:\d{1,3}\.){3}\d{1,3}$|^[a-fA-F0-9:]+$/.test(str);
   const serverDomains = proxies
     .map(p => p.server)
     .filter(s => s && typeof s === 'string' && !isIP(s));
 
   const baseFakeIpFilter = [
     '*.lan', '*.localdomain', '*.example', '*.invalid', '*.localhost', '*.test', '*.local', '*.home.arpa',
+    '+.msftconnecttest.com', '+.msftncsi.com',
     'time.*.com', 'time.*.gov', 'time.*.apple.com', 'time.*.edu.cn', '+.pool.ntp.org', 'time1.cloud.tencent.com',
     'stun.*.*', 'stun.*.*.*', '+.trafficmanager.net',
+    'localhost.ptlogin2.qq.com', 'localhost.sec.qq.com', 'localhost.work.weixin.qq.com',
     'ddns.oray.com', 'v4.66666.host', 'myip.ipip.net', 'v4.666666.host', '4.ipw.cn', 'ip.3322.net',
     'v6.66666.host', 'myip6.ipip.net', '6.ipw.cn', 'v6.666666.host'
   ];
@@ -26,16 +29,26 @@ function main(config, profileName) {
   const finalFakeIpFilter = Array.from(new Set([...baseFakeIpFilter, ...serverDomains, ...origFakeIpFilter]));
 
   const origProxyServerDns = (config.dns && config.dns['proxy-server-nameserver']) || [];
-  const defaultProxyServerDns = ['223.5.5.5', '119.29.29.29'];
-  const finalProxyServerDns = Array.from(new Set([...origProxyServerDns, ...defaultProxyServerDns]));
+  const origProxyServerPolicy = (config.dns && config.dns['proxy-server-nameserver-policy']) || {};
   const origNameserverPolicy = (config.dns && config.dns['nameserver-policy']) || {};
+  const defaultProxyServerDns = ['223.5.5.5', '119.29.29.29'];
+
+  const proxyServerPolicy = Object.assign({}, origProxyServerPolicy);
+  if (origProxyServerDns.length > 0 && serverDomains.length > 0) {
+    const customDns = origProxyServerDns.length === 1 ? origProxyServerDns[0] : origProxyServerDns;
+    serverDomains.forEach(domain => {
+      if (!proxyServerPolicy[domain]) {
+        proxyServerPolicy[domain] = customDns;
+      }
+    });
+  }
 
   config['unified-delay'] = true;
   config['tcp-concurrent'] = true;
   config['prefer-ipv4'] = true;
-  config['profile'] = Object.assign({}, config['profile'], { 'store-selected': true });
+  config.profile = Object.assign({}, config.profile, { 'store-selected': true });
 
-  config['sniffer'] = {
+  config.sniffer = {
     enable: true,
     'parse-pure-ip': true,
     sniff: {
@@ -45,7 +58,7 @@ function main(config, profileName) {
     'skip-domain': ['Mijia Cloud', 'dlg.io.mi.com', '+.apple.com']
   };
 
-  config['dns'] = {
+  config.dns = {
     enable: true,
     ipv6: true,
     'enhanced-mode': 'fake-ip',
@@ -53,9 +66,10 @@ function main(config, profileName) {
     'fake-ip-range6': 'fdfe:dcba:9876::1/64',
     'use-hosts': true,
     'respect-rules': true,
+    'cache-algorithm': 'arc',
     'fake-ip-filter': finalFakeIpFilter,
     'default-nameserver': ['223.5.5.5', '119.29.29.29'],
-    'proxy-server-nameserver': finalProxyServerDns,
+    'proxy-server-nameserver': defaultProxyServerDns,
     nameserver: ['223.5.5.5', '119.29.29.29'],
     fallback: ['1.1.1.1', '8.8.8.8'],
     'fallback-filter': {
@@ -64,61 +78,31 @@ function main(config, profileName) {
       ipcidr: ['240.0.0.0/4']
     }
   };
-  if (Object.keys(origNameserverPolicy).length > 0) {
-    config['dns']['nameserver-policy'] = origNameserverPolicy;
+  if (Object.keys(proxyServerPolicy).length > 0) {
+    config.dns['proxy-server-nameserver-policy'] = proxyServerPolicy;
   }
+  if (Object.keys(origNameserverPolicy).length > 0) {
+    config.dns['nameserver-policy'] = origNameserverPolicy;
+  }
+
+  const ruleSet = (category, file) => ({
+    type: 'http',
+    behavior: 'classical',
+    interval: 86400,
+    url: `https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/${category}/${file}.yaml`,
+    path: `./ruleset/${file}.yaml`
+  });
   config['rule-providers'] = {
-    Lan: {
-      type: 'http',
-      behavior: 'classical',
-      interval: 86400,
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Lan/Lan_No_Resolve.yaml',
-      path: './ruleset/Lan_No_Resolve.yaml'
-    },
-    ChinaMax: {
-      type: 'http',
-      behavior: 'classical',
-      interval: 86400,
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/ChinaMax/ChinaMax_Classical_No_Resolve.yaml',
-      path: './ruleset/ChinaMax_Classical_No_Resolve.yaml'
-    },
-    SteamCN: {
-      type: 'http',
-      behavior: 'classical',
-      interval: 86400,
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/SteamCN/SteamCN_No_Resolve.yaml',
-      path: './ruleset/SteamCN_No_Resolve.yaml'
-    },
-    Steam: {
-      type: 'http',
-      behavior: 'classical',
-      interval: 86400,
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Steam/Steam_No_Resolve.yaml',
-      path: './ruleset/Steam_No_Resolve.yaml'
-    },
-    Epic: {
-      type: 'http',
-      behavior: 'classical',
-      interval: 86400,
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Epic/Epic_No_Resolve.yaml',
-      path: './ruleset/Epic_No_Resolve.yaml'
-    },
-    Wikipedia: {
-      type: 'http',
-      behavior: 'classical',
-      interval: 86400,
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Wikipedia/Wikipedia_No_Resolve.yaml',
-      path: './ruleset/Wikipedia_No_Resolve.yaml'
-    },
-    Global: {
-      type: 'http',
-      behavior: 'classical',
-      interval: 86400,
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Global/Global_Classical_No_Resolve.yaml',
-      path: './ruleset/Global_Classical_No_Resolve.yaml'
-    }
+    Lan: ruleSet('Lan', 'Lan_No_Resolve'),
+    ChinaMax: ruleSet('ChinaMax', 'ChinaMax_Classical_No_Resolve'),
+    SteamCN: ruleSet('SteamCN', 'SteamCN_No_Resolve'),
+    Steam: ruleSet('Steam', 'Steam_No_Resolve'),
+    Epic: ruleSet('Epic', 'Epic_No_Resolve'),
+    Wikipedia: ruleSet('Wikipedia', 'Wikipedia_No_Resolve'),
+    Global: ruleSet('Global', 'Global_Classical_No_Resolve')
   };
-  config['rules'] = [
+
+  config.rules = [
     'DOMAIN-SUFFIX,local,DIRECT',
     'DOMAIN-SUFFIX,lan,DIRECT',
     'RULE-SET,Lan,DIRECT',
@@ -138,46 +122,47 @@ function main(config, profileName) {
     'DOMAIN-SUFFIX,opencode.ai,DEFAULT',
     'MATCH,SLIP'
   ];
+
   const countryDefs = [
-    { name: 'HKG', regex: /(?:香港|HK(?![a-zA-Z])|HongKong|Hong Kong)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ed-1f1f0.png?v8' },
-    { name: 'MAC', regex: /(?:澳门|MO(?![a-zA-Z])|Macau|Macao)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1f4.png?v8' },
-    { name: 'TWN', regex: /(?:台湾|TW(?![a-zA-Z])|Taiwan)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1fc.png?v8' },
-    { name: 'JPN', regex: /(?:日本|JP(?![a-zA-Z])|Japan)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ef-1f1f5.png?v8' },
-    { name: 'KOR', regex: /(?:韩国|KR(?![a-zA-Z])|Korea)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f0-1f1f7.png?v8' },
-    { name: 'SGP', regex: /(?:新加坡|SG(?![a-zA-Z])|Singapore)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ec.png?v8' },
-    { name: 'MYS', regex: /(?:马来|MY(?![a-zA-Z])|Malaysia)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1fe.png?v8' },
-    { name: 'THA', regex: /(?:泰国|TH(?![a-zA-Z])|Thailand)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1ed.png?v8' },
-    { name: 'VNM', regex: /(?:越南|VN(?![a-zA-Z])|Vietnam)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1fb-1f1f3.png?v8' },
-    { name: 'IDN', regex: /(?:印尼|印度尼西亚|ID(?![a-zA-Z])|Indonesia)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1e9.png?v8' },
-    { name: 'IND', regex: /(?:(?<!印)印度(?!尼西亚)|IN(?![a-zA-Z])|India)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f3.png?v8' },
-    { name: 'ARE', regex: /(?:阿拉伯联合酋长国|阿联酋|迪拜|阿布扎比|AE(?![a-zA-Z])|UAE|United Arab Emirates)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e6-1f1ea.png?v8' },
-    { name: 'USA', regex: /(?:美国|US(?![a-zA-Z])|UnitedStates|United States)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1fa-1f1f8.png?v8' },
-    { name: 'CAN', regex: /(?:加拿大|CA(?![a-zA-Z])|Canada)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1e6.png?v8' },
-    { name: 'MEX', regex: /(?:墨西哥|MX(?![a-zA-Z])|Mexico)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1fd.png?v8' },
-    { name: 'BRA', regex: /(?:巴西|BR(?![a-zA-Z])|Brazil)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f7.png?v8' },
-    { name: 'UKR', regex: /(?:乌克兰|UA(?![a-zA-Z])|Ukraine)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1fa-1f1e6.png?v8' },
-    { name: 'ROU', regex: /(?:罗马尼亚|RO(?![a-zA-Z])|Romania)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f7-1f1f4.png?v8' },
-    { name: 'LTU', regex: /(?:立陶宛|LT(?![a-zA-Z])|Lithuania)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f1-1f1f9.png?v8' },
-    { name: 'ITA', regex: /(?:意大利|IT(?![a-zA-Z])|Italy)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f9.png?v8' },
-    { name: 'TUR', regex: /(?:土耳其|TR(?![a-zA-Z])|Turkey)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1f7.png?v8' },
-    { name: 'GBR', regex: /(?:英国|UK(?![a-zA-Z])|GreatBritain|UnitedKingdom)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1e7.png?v8' },
-    { name: 'DEU', regex: /(?:德国|DE(?![a-zA-Z])|Germany)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e9-1f1ea.png?v8' },
-    { name: 'FRA', regex: /(?:法国|FR(?![a-zA-Z])|France)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1eb-1f1f7.png?v8' },
-    { name: 'NLD', regex: /(?:荷兰|NL(?![a-zA-Z])|Netherlands)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f3-1f1f1.png?v8' },
-    { name: 'SWE', regex: /(?:瑞典|SE(?![a-zA-Z])|Sweden)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ea.png?v8' },
-    { name: 'AUS', regex: /(?:澳大利亚|澳洲|AU(?![a-zA-Z])|Australia)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e6-1f1fa.png?v8' },
-    { name: 'NGA', regex: /(?:尼日利亚|NG(?![a-zA-Z])|Nigeria)/i, flag: 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f3-1f1ec.png?v8' }
+    { name: 'HKG', code: '1f1ed-1f1f0', regex: /(?:香港|HK(?![a-zA-Z])|HongKong|Hong Kong)/i },
+    { name: 'MAC', code: '1f1f2-1f1f4', regex: /(?:澳门|MO(?![a-zA-Z])|Macau|Macao)/i },
+    { name: 'TWN', code: '1f1f9-1f1fc', regex: /(?:台湾|TW(?![a-zA-Z])|Taiwan)/i },
+    { name: 'JPN', code: '1f1ef-1f1f5', regex: /(?:日本|JP(?![a-zA-Z])|Japan)/i },
+    { name: 'KOR', code: '1f1f0-1f1f7', regex: /(?:韩国|KR(?![a-zA-Z])|Korea)/i },
+    { name: 'SGP', code: '1f1f8-1f1ec', regex: /(?:新加坡|SG(?![a-zA-Z])|Singapore)/i },
+    { name: 'MYS', code: '1f1f2-1f1fe', regex: /(?:马来|MY(?![a-zA-Z])|Malaysia)/i },
+    { name: 'THA', code: '1f1f9-1f1ed', regex: /(?:泰国|TH(?![a-zA-Z])|Thailand)/i },
+    { name: 'VNM', code: '1f1fb-1f1f3', regex: /(?:越南|VN(?![a-zA-Z])|Vietnam)/i },
+    { name: 'IDN', code: '1f1ee-1f1e9', regex: /(?:印尼|印度尼西亚|ID(?![a-zA-Z])|Indonesia)/i },
+    { name: 'IND', code: '1f1ee-1f1f3', regex: /(?:(?<!印)印度(?!尼西亚)|IN(?![a-zA-Z])|India)/i },
+    { name: 'ARE', code: '1f1e6-1f1ea', regex: /(?:阿拉伯联合酋长国|阿联酋|迪拜|阿布扎比|AE(?![a-zA-Z])|UAE|United Arab Emirates)/i },
+    { name: 'USA', code: '1f1fa-1f1f8', regex: /(?:美国|US(?![a-zA-Z])|UnitedStates|United States)/i },
+    { name: 'CAN', code: '1f1e8-1f1e6', regex: /(?:加拿大|CA(?![a-zA-Z])|Canada)/i },
+    { name: 'MEX', code: '1f1f2-1f1fd', regex: /(?:墨西哥|MX(?![a-zA-Z])|Mexico)/i },
+    { name: 'BRA', code: '1f1e7-1f1f7', regex: /(?:巴西|BR(?![a-zA-Z])|Brazil)/i },
+    { name: 'UKR', code: '1f1fa-1f1e6', regex: /(?:乌克兰|UA(?![a-zA-Z])|Ukraine)/i },
+    { name: 'ROU', code: '1f1f7-1f1f4', regex: /(?:罗马尼亚|RO(?![a-zA-Z])|Romania)/i },
+    { name: 'LTU', code: '1f1f1-1f1f9', regex: /(?:立陶宛|LT(?![a-zA-Z])|Lithuania)/i },
+    { name: 'ITA', code: '1f1ee-1f1f9', regex: /(?:意大利|IT(?![a-zA-Z])|Italy)/i },
+    { name: 'TUR', code: '1f1f9-1f1f7', regex: /(?:土耳其|TR(?![a-zA-Z])|Turkey)/i },
+    { name: 'GBR', code: '1f1ec-1f1e7', regex: /(?:英国|UK(?![a-zA-Z])|GreatBritain|UnitedKingdom)/i },
+    { name: 'DEU', code: '1f1e9-1f1ea', regex: /(?:德国|DE(?![a-zA-Z])|Germany)/i },
+    { name: 'FRA', code: '1f1eb-1f1f7', regex: /(?:法国|FR(?![a-zA-Z])|France)/i },
+    { name: 'NLD', code: '1f1f3-1f1f1', regex: /(?:荷兰|NL(?![a-zA-Z])|Netherlands)/i },
+    { name: 'SWE', code: '1f1f8-1f1ea', regex: /(?:瑞典|SE(?![a-zA-Z])|Sweden)/i },
+    { name: 'AUS', code: '1f1e6-1f1fa', regex: /(?:澳大利亚|澳洲|AU(?![a-zA-Z])|Australia)/i },
+    { name: 'NGA', code: '1f1f3-1f1ec', regex: /(?:尼日利亚|NG(?![a-zA-Z])|Nigeria)/i }
   ];
   const countryGroups = [];
   const allMatchedNames = new Set();
   for (const item of countryDefs) {
     const matched = proxyNames.filter(name => item.regex.test(name));
-    matched.forEach(n => allMatchedNames.add(n));
+    matched.forEach(name => allMatchedNames.add(name));
     countryGroups.push({
       name: item.name,
       type: 'select',
       proxies: matched.length > 0 ? matched : ['DIRECT'],
-      icon: item.flag
+      icon: emojiIcon(item.code)
     });
   }
   const othMatched = proxyNames.filter(name => !allMatchedNames.has(name));
@@ -185,70 +170,37 @@ function main(config, profileName) {
     name: 'OTH',
     type: 'select',
     proxies: othMatched.length > 0 ? othMatched : ['DIRECT'],
-    icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f3f4-2620.png?v8'
+    icon: emojiIcon('1f3f4-2620')
   });
+
   const defaultProxies = [
-    'DIRECT',
-    'ALL',
+    'DIRECT', 'ALL',
     'HKG', 'MAC', 'TWN', 'JPN', 'KOR',
     'SGP', 'MYS', 'THA', 'VNM', 'IDN', 'IND', 'ARE',
     'USA', 'CAN', 'MEX', 'BRA',
     'UKR', 'ROU', 'LTU', 'ITA', 'TUR', 'GBR', 'DEU', 'FRA', 'NLD', 'SWE',
     'AUS', 'NGA', 'OTH'
   ];
-  const coreGroups = [
-    {
-      name: 'DEFAULT',
-      type: 'select',
-      proxies: defaultProxies,
-      icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f680.png?v8'
-    },
-    {
-      name: 'ALL',
-      type: 'select',
-      proxies: proxyNames.length > 0 ? proxyNames : ['DIRECT'],
-      icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f30f.png?v8'
-    },
-    {
-      name: 'STORE',
-      type: 'select',
-      proxies: ['HKG', 'DEFAULT', 'DIRECT'],
-      icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f3ae.png?v8'
-    },
-    {
-      name: 'WIKI',
-      type: 'select',
-      proxies: ['HKG', 'DEFAULT', 'DIRECT'],
-      icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f4da.png?v8'
-    },
-    {
-      name: 'PIKPAK',
-      type: 'select',
-      proxies: ['HKG', 'DEFAULT', 'DIRECT'],
-      icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f5c3.png?v8'
-    },
-    {
-      name: 'SRGB',
-      type: 'select',
-      proxies: ['USA', 'DEFAULT', 'DIRECT'],
-      icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png?v8'
-    },
-    {
-      name: 'SLIP',
-      type: 'select',
-      proxies: ['DEFAULT', 'DIRECT'],
-      icon: 'https://github.githubassets.com/images/icons/emoji/unicode/1f41f.png?v8'
-    }
-  ];
+  const coreGroup = (name, proxies, code) => ({ name, type: 'select', proxies, icon: emojiIcon(code) });
+  const coreGroups = {
+    DEFAULT: coreGroup('DEFAULT', defaultProxies, '1f680'),
+    ALL: coreGroup('ALL', proxyNames.length > 0 ? proxyNames : ['DIRECT'], '1f30f'),
+    STORE: coreGroup('STORE', ['HKG', 'DEFAULT', 'DIRECT'], '1f3ae'),
+    WIKI: coreGroup('WIKI', ['HKG', 'DEFAULT', 'DIRECT'], '1f4da'),
+    PIKPAK: coreGroup('PIKPAK', ['HKG', 'DEFAULT', 'DIRECT'], '1f5c3'),
+    SRGB: coreGroup('SRGB', ['USA', 'DEFAULT', 'DIRECT'], '1f4a1'),
+    SLIP: coreGroup('SLIP', ['DEFAULT', 'DIRECT'], '1f41f')
+  };
   config['proxy-groups'] = [
-    coreGroups[0],
-    coreGroups[1],
+    coreGroups.DEFAULT,
+    coreGroups.ALL,
     ...countryGroups,
-    coreGroups[2],
-    coreGroups[3],
-    coreGroups[4],
-    coreGroups[5],
-    coreGroups[6]
+    coreGroups.STORE,
+    coreGroups.WIKI,
+    coreGroups.PIKPAK,
+    coreGroups.SRGB,
+    coreGroups.SLIP
   ];
+
   return config;
 }
