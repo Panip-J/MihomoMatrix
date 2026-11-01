@@ -102,27 +102,6 @@ function main(config, profileName) {
     Global: ruleSet('Global', 'Global_Classical_No_Resolve')
   };
 
-  config.rules = [
-    'DOMAIN-SUFFIX,local,DIRECT',
-    'DOMAIN-SUFFIX,lan,DIRECT',
-    'RULE-SET,Lan,DIRECT',
-    'DOMAIN-SUFFIX,moegirl.org.cn,WIKI',
-    'RULE-SET,ChinaMax,DIRECT',
-    'GEOIP,CN,DIRECT',
-    'DOMAIN-SUFFIX,acgrip.com,DIRECT',
-    'DOMAIN-SUFFIX,mineru.net,DIRECT',
-    'DOMAIN-SUFFIX,openxlab.org.cn,DIRECT',
-    'RULE-SET,SteamCN,DIRECT',
-    'RULE-SET,Steam,STORE',
-    'RULE-SET,Epic,STORE',
-    'RULE-SET,Wikipedia,WIKI',
-    'DOMAIN-KEYWORD,pikpak,PIKPAK',
-    'DOMAIN-SUFFIX,signalrgb.com,SRGB',
-    'RULE-SET,Global,DEFAULT',
-    'DOMAIN-SUFFIX,opencode.ai,DEFAULT',
-    'MATCH,SLIP'
-  ];
-
   const countryDefs = [
     { name: 'HKG', code: '1f1ed-1f1f0', regex: /(?:香港|HK(?![a-zA-Z])|HongKong|Hong Kong)/i },
     { name: 'MAC', code: '1f1f2-1f1f4', regex: /(?:澳门|MO(?![a-zA-Z])|Macau|Macao)/i },
@@ -153,23 +132,28 @@ function main(config, profileName) {
     { name: 'AUS', code: '1f1e6-1f1fa', regex: /(?:澳大利亚|澳洲|AU(?![a-zA-Z])|Australia)/i },
     { name: 'NGA', code: '1f1f3-1f1ec', regex: /(?:尼日利亚|NG(?![a-zA-Z])|Nigeria)/i }
   ];
-  const countryGroups = [];
-  const allMatchedNames = new Set();
-  for (const item of countryDefs) {
-    const matched = proxyNames.filter(name => item.regex.test(name));
-    matched.forEach(name => allMatchedNames.add(name));
-    countryGroups.push({
-      name: item.name,
-      type: 'select',
-      proxies: matched.length > 0 ? matched : ['DIRECT'],
-      icon: emojiIcon(item.code)
-    });
-  }
-  const othMatched = proxyNames.filter(name => !allMatchedNames.has(name));
+
+  const countryBuckets = new Map(countryDefs.map(def => [def.name, []]));
+  const otherNames = [];
+  proxyNames.forEach(name => {
+    const hit = countryDefs.find(def => def.regex.test(name));
+    if (hit) {
+      countryBuckets.get(hit.name).push(name);
+    } else {
+      otherNames.push(name);
+    }
+  });
+
+  const countryGroups = countryDefs.map(def => ({
+    name: def.name,
+    type: 'select',
+    proxies: countryBuckets.get(def.name).length > 0 ? countryBuckets.get(def.name) : ['DIRECT'],
+    icon: emojiIcon(def.code)
+  }));
   countryGroups.push({
     name: 'OTH',
     type: 'select',
-    proxies: othMatched.length > 0 ? othMatched : ['DIRECT'],
+    proxies: otherNames.length > 0 ? otherNames : ['DIRECT'],
     icon: emojiIcon('1f3f4-2620')
   });
 
@@ -181,16 +165,53 @@ function main(config, profileName) {
     'UKR', 'ROU', 'LTU', 'ITA', 'TUR', 'GBR', 'DEU', 'FRA', 'NLD', 'SWE',
     'AUS', 'NGA', 'OTH'
   ];
-  const coreGroup = (name, proxies, code) => ({ name, type: 'select', proxies, icon: emojiIcon(code) });
-  const coreGroups = {
-    DEFAULT: coreGroup('DEFAULT', defaultProxies, '1f680'),
-    ALL: coreGroup('ALL', proxyNames.length > 0 ? proxyNames : ['DIRECT'], '1f30f'),
-    STORE: coreGroup('STORE', ['HKG', 'DEFAULT', 'DIRECT'], '1f3ae'),
-    WIKI: coreGroup('WIKI', ['HKG', 'DEFAULT', 'DIRECT'], '1f4da'),
-    PIKPAK: coreGroup('PIKPAK', ['HKG', 'DEFAULT', 'DIRECT'], '1f5c3'),
-    SRGB: coreGroup('SRGB', ['USA', 'DEFAULT', 'DIRECT'], '1f4a1'),
-    SLIP: coreGroup('SLIP', ['DEFAULT', 'DIRECT'], '1f41f')
-  };
+  const coreGroupDefs = [
+    { name: 'DEFAULT', code: '1f680', proxies: defaultProxies },
+    { name: 'ALL', code: '1f30f', proxies: proxyNames.length > 0 ? proxyNames : ['DIRECT'] },
+    { name: 'STORE', code: '1f3ae', proxies: ['HKG', 'DEFAULT', 'DIRECT'] },
+    { name: 'WIKI', code: '1f4da', proxies: ['HKG', 'DEFAULT', 'DIRECT'] },
+    { name: 'PIKPAK', code: '1f5c3', proxies: ['HKG', 'DEFAULT', 'DIRECT'] },
+    { name: 'SRGB', code: '1f4a1', proxies: ['USA', 'DEFAULT', 'DIRECT'] },
+    { name: 'SLIP', code: '1f41f', proxies: ['DEFAULT', 'DIRECT'] }
+  ];
+  const coreGroups = {};
+  coreGroupDefs.forEach(def => {
+    coreGroups[def.name] = { name: def.name, type: 'select', proxies: def.proxies, icon: emojiIcon(def.code) };
+  });
+
+  // 每条路由 = [类型, 匹配值, 目标组]，按数组顺序即规则优先级，改一条只动一行
+  const routeTable = [
+    ['DOMAIN-SUFFIX', 'local', 'DIRECT'],
+    ['DOMAIN-SUFFIX', 'lan', 'DIRECT'],
+    ['RULE-SET', 'Lan', 'DIRECT'],
+    ['DOMAIN-SUFFIX', 'moegirl.org.cn', 'WIKI'],
+    ['RULE-SET', 'ChinaMax', 'DIRECT'],
+    ['GEOIP', 'CN', 'DIRECT'],
+    ['DOMAIN-SUFFIX', 'acgrip.com', 'DIRECT'],
+    ['DOMAIN-SUFFIX', 'mineru.net', 'DIRECT'],
+    ['DOMAIN-SUFFIX', 'openxlab.org.cn', 'DIRECT'],
+    ['RULE-SET', 'SteamCN', 'DIRECT'],
+    ['RULE-SET', 'Steam', 'STORE'],
+    ['RULE-SET', 'Epic', 'STORE'],
+    ['RULE-SET', 'Wikipedia', 'WIKI'],
+    ['DOMAIN-KEYWORD', 'pikpak', 'PIKPAK'],
+    ['DOMAIN-SUFFIX', 'signalrgb.com', 'SRGB'],
+    ['RULE-SET', 'Global', 'DEFAULT'],
+    ['DOMAIN-SUFFIX', 'opencode.ai', 'DEFAULT'],
+    ['MATCH', '', 'SLIP']
+  ];
+
+  const knownTargets = new Set(['DIRECT', 'REJECT', ...countryDefs.map(def => def.name), ...Object.keys(coreGroups)]);
+  routeTable.forEach(([type, value, target]) => {
+    if (!knownTargets.has(target)) {
+      throw new Error(`规则目标组不存在: ${type},${value},${target}`);
+    }
+    if (type === 'RULE-SET' && !config['rule-providers'][value]) {
+      throw new Error(`规则集未定义: ${value}`);
+    }
+  });
+  config.rules = routeTable.map(([type, value, target]) => (type === 'MATCH' ? `MATCH,${target}` : `${type},${value},${target}`));
+
   config['proxy-groups'] = [
     coreGroups.DEFAULT,
     coreGroups.ALL,
